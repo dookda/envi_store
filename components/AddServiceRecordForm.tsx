@@ -54,7 +54,7 @@ export default function AddServiceRecordForm({ equipmentId }: { equipmentId: str
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className="text-sm rounded-xl border-slate-200"
+            className="rounded-xl border-slate-200 text-sm"
           />
         </div>
         <div className="flex-1">
@@ -63,7 +63,7 @@ export default function AddServiceRecordForm({ equipmentId }: { equipmentId: str
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Service notes..."
-            className="text-sm rounded-xl border-slate-200"
+            className="rounded-xl border-slate-200 text-sm"
           />
         </div>
       </div>

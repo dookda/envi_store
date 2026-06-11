@@ -89,7 +89,7 @@ export async function archiveEquipment(id: string) {
 
   await prisma.equipmentItem.update({
     where: { id },
-    data: { isArchived: true, archivedAt: new Date() },
+    data: { isArchived: true, archivedAt: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())) },
   });
 
   revalidatePath("/");
