@@ -1,63 +1,90 @@
 {
   "node": {
-    "00e08e0ff85dad03cbf7f46089d86816ca5a175751": {
+    "00b76a5e0757f75ec0ed01b70d97b3f2953c72fc5e": {
       "workers": {
         "app/(protected)/equipment/[id]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%2200e08e0ff85dad03cbf7f46089d86816ca5a175751%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
+          "moduleId": 16785,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "components/Header.tsx"
+        },
+        "app/(protected)/equipment/new/page": {
+          "moduleId": 64592,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "components/Header.tsx"
         },
         "app/(protected)/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%2200e08e0ff85dad03cbf7f46089d86816ca5a175751%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
+          "moduleId": 11498,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "components/Header.tsx"
         }
-      },
-      "layer": {
-        "app/(protected)/equipment/[id]/page": "rsc",
-        "app/(protected)/page": "rsc"
       },
       "filename": "components/Header.tsx",
       "exportedName": "$$RSC_SERVER_ACTION_0"
     },
-    "40184320234cf67fae179d896ae1f3b2d9719801c6": {
+    "402b4322aa8394d5f9198c5e9cde5424f2c27fa5ff": {
       "workers": {
         "app/(protected)/equipment/[id]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%2240184320234cf67fae179d896ae1f3b2d9719801c6%22%2C%22exportedName%22%3A%22deleteEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2240b93cfb75f697ac112f07d25c62e47d17b9560c01%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260f3d683734840bb164320ac1350df6cb0901806d0%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
+          "moduleId": 16785,
+          "async": true,
+          "exportedName": "createEquipment",
+          "filename": "lib/db/actions.ts"
+        },
+        "app/(protected)/equipment/new/page": {
+          "moduleId": 64592,
+          "async": true,
+          "exportedName": "createEquipment",
+          "filename": "lib/db/actions.ts"
         }
-      },
-      "layer": {
-        "app/(protected)/equipment/[id]/page": "action-browser"
-      },
-      "filename": "lib/db/actions.ts",
-      "exportedName": "deleteEquipment"
-    },
-    "40b93cfb75f697ac112f07d25c62e47d17b9560c01": {
-      "workers": {
-        "app/(protected)/equipment/[id]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%2240184320234cf67fae179d896ae1f3b2d9719801c6%22%2C%22exportedName%22%3A%22deleteEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2240b93cfb75f697ac112f07d25c62e47d17b9560c01%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260f3d683734840bb164320ac1350df6cb0901806d0%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/(protected)/equipment/[id]/page": "action-browser"
       },
       "filename": "lib/db/actions.ts",
       "exportedName": "createEquipment"
     },
-    "60f3d683734840bb164320ac1350df6cb0901806d0": {
+    "6057e548c1e7d7dfa98cd8a2781bc544f688993b00": {
       "workers": {
         "app/(protected)/equipment/[id]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%2240184320234cf67fae179d896ae1f3b2d9719801c6%22%2C%22exportedName%22%3A%22deleteEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2240b93cfb75f697ac112f07d25c62e47d17b9560c01%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260f3d683734840bb164320ac1350df6cb0901806d0%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
+          "moduleId": 16785,
+          "async": true,
+          "exportedName": "updateEquipment",
+          "filename": "lib/db/actions.ts"
+        },
+        "app/(protected)/equipment/new/page": {
+          "moduleId": 64592,
+          "async": true,
+          "exportedName": "updateEquipment",
+          "filename": "lib/db/actions.ts"
         }
-      },
-      "layer": {
-        "app/(protected)/equipment/[id]/page": "action-browser"
       },
       "filename": "lib/db/actions.ts",
       "exportedName": "updateEquipment"
+    },
+    "40ab349917665ac5a9af7507b7f0b0f9ac552beafe": {
+      "workers": {
+        "app/(protected)/equipment/[id]/page": {
+          "moduleId": 16785,
+          "async": true,
+          "exportedName": "deleteEquipment",
+          "filename": "lib/db/actions.ts"
+        }
+      },
+      "filename": "lib/db/actions.ts",
+      "exportedName": "deleteEquipment"
+    },
+    "0017ceb5f8258d34682d03d227c6cf7337a25c7d66": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": 80262,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "app/login/page.tsx"
+        }
+      },
+      "filename": "app/login/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
     }
   },
   "edge": {},
-  "encryptionKey": "cZ9aUaoYS6iED8vRAeBgmgDz1v3UUyIJFWN1w07x7Eo="
+  "encryptionKey": "86V8zkUqPytjfJ/2iD/YCzXyi56cWsxbk0ca57blmxg="
 }
