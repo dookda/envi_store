@@ -25,6 +25,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/subscribe/(protected)/equipment/[id]/page.js"
+    ],
+    "/subscribe/(protected)/equipment/new/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/subscribe/(protected)/equipment/new/page.js"
     ]
   }
 }
