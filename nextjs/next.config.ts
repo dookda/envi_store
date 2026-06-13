@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   basePath: "/store",
+  allowedDevOrigins: ["envir-ai.com"],
   env: {
     NEXT_PUBLIC_BASE_PATH: "/store",
   },
