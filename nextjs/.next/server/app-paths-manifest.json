@@ -1,5 +1,4 @@
 {
-  "/subscribe/(protected)/equipment/new/page": "app/subscribe/(protected)/equipment/new/page.js",
-  "/subscribe/(protected)/page": "app/subscribe/(protected)/page.js",
-  "/subscribe/(protected)/equipment/[id]/page": "app/subscribe/(protected)/equipment/[id]/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/store/(protected)/page": "app/store/(protected)/page.js"
 }

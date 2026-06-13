@@ -5,31 +5,21 @@
       "static/chunks/main-app.js",
       "static/chunks/app/layout.js"
     ],
-    "/subscribe/layout": [
+    "/store/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/subscribe/layout.css",
-      "static/chunks/app/subscribe/layout.js"
+      "static/css/app/store/layout.css",
+      "static/chunks/app/store/layout.js"
     ],
-    "/subscribe/(protected)/layout": [
+    "/store/(protected)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/subscribe/(protected)/layout.js"
+      "static/chunks/app/store/(protected)/layout.js"
     ],
-    "/subscribe/(protected)/page": [
+    "/store/(protected)/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/subscribe/(protected)/page.js"
-    ],
-    "/subscribe/(protected)/equipment/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/subscribe/(protected)/equipment/[id]/page.js"
-    ],
-    "/subscribe/(protected)/equipment/new/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/subscribe/(protected)/equipment/new/page.js"
+      "static/chunks/app/store/(protected)/page.js"
     ]
   }
 }

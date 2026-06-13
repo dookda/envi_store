@@ -1,83 +1,19 @@
 {
   "node": {
-    "002be4b6cfe72052c677e4e59378034cd86528017f": {
+    "00a43c5b3907cc204f09feff669262e35e815ff717": {
       "workers": {
-        "app/subscribe/(protected)/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%22002be4b6cfe72052c677e4e59378034cd86528017f%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/subscribe/(protected)/equipment/[id]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%22002be4b6cfe72052c677e4e59378034cd86528017f%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/subscribe/(protected)/equipment/new/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%22002be4b6cfe72052c677e4e59378034cd86528017f%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
+        "app/store/(protected)/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%2200a43c5b3907cc204f09feff669262e35e815ff717%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
-        "app/subscribe/(protected)/page": "rsc",
-        "app/subscribe/(protected)/equipment/[id]/page": "rsc",
-        "app/subscribe/(protected)/equipment/new/page": "rsc"
+        "app/store/(protected)/page": "rsc"
       },
       "filename": "components/Header.tsx",
       "exportedName": "$$RSC_SERVER_ACTION_0"
-    },
-    "400f7df52d0ffd5d45aa7667de752b058c0fa5b479": {
-      "workers": {
-        "app/subscribe/(protected)/equipment/[id]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%22400f7df52d0ffd5d45aa7667de752b058c0fa5b479%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%224085569eb8dabf9f84305f2f7759d7c2e386482827%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260a47899738caacfe79cd744e390f233ff7e6c6318%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/subscribe/(protected)/equipment/new/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%22400f7df52d0ffd5d45aa7667de752b058c0fa5b479%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%224085569eb8dabf9f84305f2f7759d7c2e386482827%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260a47899738caacfe79cd744e390f233ff7e6c6318%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/subscribe/(protected)/equipment/[id]/page": "action-browser",
-        "app/subscribe/(protected)/equipment/new/page": "action-browser"
-      },
-      "filename": "lib/db/actions.ts",
-      "exportedName": "archiveEquipment"
-    },
-    "4085569eb8dabf9f84305f2f7759d7c2e386482827": {
-      "workers": {
-        "app/subscribe/(protected)/equipment/[id]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%22400f7df52d0ffd5d45aa7667de752b058c0fa5b479%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%224085569eb8dabf9f84305f2f7759d7c2e386482827%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260a47899738caacfe79cd744e390f233ff7e6c6318%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/subscribe/(protected)/equipment/new/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%22400f7df52d0ffd5d45aa7667de752b058c0fa5b479%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%224085569eb8dabf9f84305f2f7759d7c2e386482827%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260a47899738caacfe79cd744e390f233ff7e6c6318%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/subscribe/(protected)/equipment/[id]/page": "action-browser",
-        "app/subscribe/(protected)/equipment/new/page": "action-browser"
-      },
-      "filename": "lib/db/actions.ts",
-      "exportedName": "createEquipment"
-    },
-    "60a47899738caacfe79cd744e390f233ff7e6c6318": {
-      "workers": {
-        "app/subscribe/(protected)/equipment/[id]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%22400f7df52d0ffd5d45aa7667de752b058c0fa5b479%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%224085569eb8dabf9f84305f2f7759d7c2e386482827%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260a47899738caacfe79cd744e390f233ff7e6c6318%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/subscribe/(protected)/equipment/new/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%22400f7df52d0ffd5d45aa7667de752b058c0fa5b479%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%224085569eb8dabf9f84305f2f7759d7c2e386482827%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2260a47899738caacfe79cd744e390f233ff7e6c6318%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/subscribe/(protected)/equipment/[id]/page": "action-browser",
-        "app/subscribe/(protected)/equipment/new/page": "action-browser"
-      },
-      "filename": "lib/db/actions.ts",
-      "exportedName": "updateEquipment"
     }
   },
   "edge": {},
-  "encryptionKey": "/A6vdAspIdDdTO+nATvSNUcBlvNiYxDHA5839KrUfTU="
+  "encryptionKey": "UslxUNOaIuvWPd1L+3Ft2a2flAob3naBZTQiX0uyDaA="
 }

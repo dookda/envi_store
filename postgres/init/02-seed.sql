@@ -28,4 +28,12 @@ VALUES
      '/uploads/08f9e00c-91ba-4f64-969d-dc8b246ae368.webp',
      false,
      '2026-06-13 05:23:26.027',
-     '2026-06-13 05:23:26.027');
+     '2026-06-13 05:23:26.027'),
+
+    ('cmqc3z7tj0001od7fvobn2yw9',
+     'cmqbw429q0000o65bs8offnet',
+     'AAQMS', 'AAQMS', 'Acme crop', 'Floo1',
+     '/uploads/d921644e-1f57-4b6d-8b41-035ee14410e0.png',
+     false,
+     '2026-06-13 08:43:46.902',
+     '2026-06-13 08:43:46.902');
