@@ -63,6 +63,7 @@ model EquipmentItem {
   customerName   String
   location       String
   image          String?
+  inUse          Boolean   @default(false)
   installedAt    DateTime?
   expiredAt      DateTime?
   latitude       Float?

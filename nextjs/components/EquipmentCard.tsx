@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import type { EquipmentItem } from "@prisma/client";
 import { BASE_PATH } from "@/lib/base-path";
-import CardDeleteButton from "@/components/CardDeleteButton";
 
 interface Props {
   item: EquipmentItem;
@@ -21,7 +20,13 @@ export default function EquipmentCard({ item }: Props) {
   return (
     <Link href={`${BASE_PATH}/equipment/${item.id}`}>
       <div className="relative rounded-2xl border border-slate-100 bg-white transition-shadow hover:shadow-sm overflow-hidden dark:border-slate-700 dark:bg-slate-800">
-        <CardDeleteButton id={item.id} />
+
+        {item.inUse ? (
+          <span className="absolute right-2 top-2 z-10 flex items-center justify-center rounded-full bg-green-500 text-white shadow" style={{ width: 20, height: 20 }}>
+            <span className="material-icons select-none leading-none" style={{ fontSize: 14 }}>check</span>
+          </span>
+        ) : null}
+
         {item.image ? (
           <div className="relative aspect-video w-full bg-slate-100">
             <Image src={item.image} alt={item.equipmentName} fill className="object-contain" unoptimized />
@@ -41,7 +46,7 @@ export default function EquipmentCard({ item }: Props) {
                 ? `${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}`
                 : item.location}
             </p>
-            {item.expiredAt ? <RemainDays expiredAt={item.expiredAt} /> : null}
+            {item.inUse && item.expiredAt ? <RemainDays expiredAt={item.expiredAt} /> : null}
           </div>
         </div>
       </div>

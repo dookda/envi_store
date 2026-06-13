@@ -42,7 +42,7 @@ export default function CardDeleteButton({ id, variant = "icon" }: { id: string;
     <button
       onClick={handleClick}
       disabled={loading}
-      className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-slate-400 shadow-sm hover:bg-red-50 hover:text-red-500 disabled:opacity-50 dark:bg-slate-700/80 dark:hover:bg-red-900 dark:hover:text-red-400"
+      className="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-slate-400 shadow-sm hover:bg-red-50 hover:text-red-500 disabled:opacity-50 dark:bg-slate-700/80 dark:hover:bg-red-900 dark:hover:text-red-400"
       aria-label={t.deleteEquipment}
     >
       {loading

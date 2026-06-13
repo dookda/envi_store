@@ -23,6 +23,7 @@ export default function EquipmentForm({ equipment }: Props) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
+  const [inUse, setInUse] = useState(equipment?.inUse ?? false);
   const [preview, setPreview] = useState<string | null>(equipment?.image ?? null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -61,6 +62,24 @@ export default function EquipmentForm({ equipment }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* In Use switch */}
+      <div className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-600">
+        <Label htmlFor="inUseToggle" className="text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+          {t.inUse}
+        </Label>
+        <button
+          id="inUseToggle"
+          type="button"
+          role="switch"
+          aria-checked={inUse}
+          onClick={() => setInUse((v) => !v)}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${inUse ? "bg-blue-500" : "bg-slate-200 dark:bg-slate-600"}`}
+        >
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${inUse ? "translate-x-6" : "translate-x-1"}`} />
+        </button>
+        <input type="hidden" name="inUse" value={inUse ? "on" : ""} />
+      </div>
+
       {fields.map((field) => (
         <div key={field.name}>
           <Label htmlFor={field.name} className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">
@@ -78,15 +97,16 @@ export default function EquipmentForm({ equipment }: Props) {
         </div>
       ))}
 
+      {/* Install / expire dates — required only when inUse */}
       <div>
         <Label htmlFor="installedAt" className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">
-          {t.fieldInstalledAt}<span className="ml-0.5 text-red-500">*</span>
+          {t.fieldInstalledAt}{inUse ? <span className="ml-0.5 text-red-500">*</span> : null}
         </Label>
         <Input
           id="installedAt"
           name="installedAt"
           type="date"
-          required
+          required={inUse}
           defaultValue={equipment?.installedAt ? new Date(equipment.installedAt).toISOString().slice(0, 10) : ""}
           className="rounded-xl border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
         />
@@ -95,12 +115,13 @@ export default function EquipmentForm({ equipment }: Props) {
 
       <div>
         <Label htmlFor="expiredAt" className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">
-          {t.fieldExpiredAt}
+          {t.fieldExpiredAt}{inUse ? <span className="ml-0.5 text-red-500">*</span> : null}
         </Label>
         <Input
           id="expiredAt"
           name="expiredAt"
           type="date"
+          required={inUse}
           defaultValue={equipment?.expiredAt ? new Date(equipment.expiredAt).toISOString().slice(0, 10) : ""}
           className="rounded-xl border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
         />
