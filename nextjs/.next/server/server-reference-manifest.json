@@ -5,13 +5,57 @@
         "app/store/(protected)/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%2200a43c5b3907cc204f09feff669262e35e815ff717%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
+        },
+        "app/store/(protected)/equipment/[id]/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Fcomponents%2FHeader.tsx%22%2C%5B%7B%22id%22%3A%2200a43c5b3907cc204f09feff669262e35e815ff717%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22components%2FHeader.tsx%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
         }
       },
       "layer": {
-        "app/store/(protected)/page": "rsc"
+        "app/store/(protected)/page": "rsc",
+        "app/store/(protected)/equipment/[id]/page": "rsc"
       },
       "filename": "components/Header.tsx",
       "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "40b7606d1bcd81a3f6fcf98aa4436fb791e9a690f4": {
+      "workers": {
+        "app/store/(protected)/equipment/[id]/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%2240b7606d1bcd81a3f6fcf98aa4436fb791e9a690f4%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2240f46efd4cbd9e14da52de20102f34cdb43bc186c3%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%22608f4b41f5aec4bf721117f2cb026c773bb59a4f5c%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/store/(protected)/equipment/[id]/page": "action-browser"
+      },
+      "filename": "lib/db/actions.ts",
+      "exportedName": "archiveEquipment"
+    },
+    "40f46efd4cbd9e14da52de20102f34cdb43bc186c3": {
+      "workers": {
+        "app/store/(protected)/equipment/[id]/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%2240b7606d1bcd81a3f6fcf98aa4436fb791e9a690f4%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2240f46efd4cbd9e14da52de20102f34cdb43bc186c3%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%22608f4b41f5aec4bf721117f2cb026c773bb59a4f5c%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/store/(protected)/equipment/[id]/page": "action-browser"
+      },
+      "filename": "lib/db/actions.ts",
+      "exportedName": "createEquipment"
+    },
+    "608f4b41f5aec4bf721117f2cb026c773bb59a4f5c": {
+      "workers": {
+        "app/store/(protected)/equipment/[id]/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fapp%2Flib%2Fdb%2Factions.ts%22%2C%5B%7B%22id%22%3A%2240b7606d1bcd81a3f6fcf98aa4436fb791e9a690f4%22%2C%22exportedName%22%3A%22archiveEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%2240f46efd4cbd9e14da52de20102f34cdb43bc186c3%22%2C%22exportedName%22%3A%22createEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%2C%7B%22id%22%3A%22608f4b41f5aec4bf721117f2cb026c773bb59a4f5c%22%2C%22exportedName%22%3A%22updateEquipment%22%2C%22filename%22%3A%22lib%2Fdb%2Factions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/store/(protected)/equipment/[id]/page": "action-browser"
+      },
+      "filename": "lib/db/actions.ts",
+      "exportedName": "updateEquipment"
     }
   },
   "edge": {},

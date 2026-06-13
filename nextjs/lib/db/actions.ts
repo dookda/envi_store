@@ -31,6 +31,7 @@ export async function createEquipment(formData: FormData) {
         model: formData.get("model"),
         customerName: formData.get("customerName"),
         location: formData.get("location"),
+        installedAt: formData.get("installedAt") || undefined,
     };
     const result = equipmentSchema.safeParse(raw);
     if (!result.success) return { error: result.error.flatten().fieldErrors };
@@ -53,6 +54,7 @@ export async function updateEquipment(id: string, formData: FormData) {
         model: formData.get("model"),
         customerName: formData.get("customerName"),
         location: formData.get("location"),
+        installedAt: formData.get("installedAt") || undefined,
     };
     const result = equipmentSchema.safeParse(raw);
     if (!result.success) return { error: result.error.flatten().fieldErrors };

@@ -63,6 +63,7 @@ CREATE TABLE public."EquipmentItem" (
     "customerName"  text NOT NULL,
     location        text NOT NULL,
     image           text,
+    "installedAt"   timestamp(3) without time zone,
     "isArchived"    boolean DEFAULT false NOT NULL,
     "archivedAt"    timestamp(3) without time zone,
     "createdAt"     timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -150,4 +151,8 @@ VALUES
 
     ('e1f2a3b4-c5d6-7890-abcd-ef1234567890',
      'd6464293d8c6f03a3c1bdca66f457fd36cf28e315b3995f596e92c9487f52ee6',
-     now(), '20260613130000_remove_service_records', NULL, NULL, now(), 1);
+     now(), '20260613130000_remove_service_records', NULL, NULL, now(), 1),
+
+    ('f2a3b4c5-d6e7-8901-bcde-f12345678901',
+     'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+     now(), '20260613140000_add_installed_at', NULL, NULL, now(), 1);

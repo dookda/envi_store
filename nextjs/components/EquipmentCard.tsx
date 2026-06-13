@@ -22,6 +22,7 @@ export default function EquipmentCard({ item }: Props) {
           <div className="mt-3 space-y-1">
             <p className="text-xs text-slate-500">👤 {item.customerName}</p>
             <p className="text-xs text-slate-500">📍 {item.location}</p>
+            <p className="text-xs text-slate-500">🗓 {new Date(item.installedAt ?? item.createdAt).toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric" })}</p>
           </div>
         </div>
       </div>

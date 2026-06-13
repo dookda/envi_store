@@ -63,6 +63,7 @@ model EquipmentItem {
   customerName   String
   location       String
   image          String?
+  installedAt    DateTime?
   isArchived     Boolean   @default(false)
   archivedAt     DateTime?
   createdAt      DateTime  @default(now())

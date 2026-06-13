@@ -17,7 +17,7 @@ interface Props {
 type FieldErrors = Record<string, string[] | undefined>;
 
 const fields = [
-  { name: "equipmentName", label: "Equipment Name", placeholder: "Air quality monitor XR-200" },
+  { name: "equipmentName", label: "Band", placeholder: "Air quality monitor XR-200" },
   { name: "model", label: "Model", placeholder: "XR-200" },
   { name: "customerName", label: "Customer Name", placeholder: "Acme Corp" },
   { name: "location", label: "Installation Location", placeholder: "Building A, Floor 3" },
@@ -75,6 +75,24 @@ export default function EquipmentForm({ equipment }: Props) {
           {errors[field.name] ? <p className="mt-1 text-xs text-red-500">{errors[field.name]?.[0]}</p> : null}
         </div>
       ))}
+
+      <div>
+        <Label htmlFor="installedAt" className="mb-1.5 block text-sm text-slate-600">
+          Installed Date
+        </Label>
+        <Input
+          id="installedAt"
+          name="installedAt"
+          type="date"
+          defaultValue={
+            equipment?.installedAt
+              ? new Date(equipment.installedAt).toISOString().slice(0, 10)
+              : ""
+          }
+          className="rounded-xl border-slate-200"
+        />
+        {errors.installedAt ? <p className="mt-1 text-xs text-red-500">{errors.installedAt[0]}</p> : null}
+      </div>
 
       <div>
         <Label htmlFor="image" className="mb-1.5 block text-sm text-slate-600">

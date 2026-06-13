@@ -5,6 +5,7 @@ export const equipmentSchema = z.object({
     model: z.string().min(1, "Model is required").max(200),
     customerName: z.string().min(1, "Customer name is required").max(200),
     location: z.string().min(1, "Location is required").max(500),
+    installedAt: z.string().optional().transform((v) => (v ? new Date(v) : undefined)),
 });
 
 export type EquipmentFormData = z.infer<typeof equipmentSchema>;
