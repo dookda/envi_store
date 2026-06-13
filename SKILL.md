@@ -3,260 +3,505 @@ name: envi-dashboard
 description: Expert context for the Envi Dashboard project — Next.js config, basePath prefix, database schema, .env variables, Docker services, IoT API parameter codes, and alert pipeline. Use when working in the envi_dashboard repo.
 ---
 
-# Envi Dashboard — Architecture & Best Practices
+# Full-Stack Best Practices: Next.js · Prisma · PostgreSQL · Docker · Auth.js
 
-**App:** Envir Service · Environmental Quality Control Terminal  
-**Stack:** Next.js 15 · Prisma v6 · PostgreSQL · Docker Compose · Auth.js v5 · LINE API  
-**Root:** `/Users/sakdahomhuan/Dev/envi_dashboard`
+> Framework setup & configuration patterns — transferable to any project using this stack.
+> Project-specific values are marked **[this project]**.
 
 ---
 
-## 1. Next.js `basePath` — The Golden Rule
+## 1. Project Structure
 
-This app is mounted at `/air` (set in `web/next.config.ts`).
+```
+project-root/
+├── .env                  ← single env file for ALL services (never nest inside web/)
+├── docker-compose.yml
+├── db/
+│   └── init.sql          ← schema DDL + seed data (Docker mounts on first run)
+└── web/                  ← Next.js app
+    ├── next.config.ts
+    ├── prisma/
+    │   └── schema.prisma
+    └── src/
+        ├── app/          ← App Router pages & API routes
+        ├── components/
+        └── lib/          ← shared utilities (db client, external APIs, helpers)
+```
 
-**Rule:** Next.js injects `basePath` automatically into every `<Link>`, `redirect()`, and `router.push()`. You must never add it yourself.
+**Rule:** Keep `.env` at the mono-repo root so Docker Compose, the web app, and any scripts all read from the same file without duplication.
+
+---
+
+## 2. Next.js — `basePath` (Sub-path Deployment)
+
+When an app is mounted under a sub-path (e.g. `/air`, `/app`, `/dashboard`), set it in `next.config.ts`:
 
 ```ts
-// WRONG — double-prefixes to /air/air/dashboard
+// web/next.config.ts
+const nextConfig: NextConfig = {
+  basePath: '/air',                         // [this project] change per deployment
+  output: 'standalone',                     // recommended for Docker
+};
+```
+
+### What Next.js handles automatically
+`<Link>`, `redirect()`, `router.push()`, `<Image>`, `_next/static` — all get the prefix injected.
+
+```ts
+// WRONG — results in /air/air/dashboard
 <Link href="/air/dashboard">
 
-// CORRECT — Next.js adds /air automatically
+// CORRECT — Next.js injects /air
 <Link href="/dashboard">
 redirect('/dashboard')
 router.push('/stations')
 ```
 
-**Exception — Auth.js bypasses the Next.js router**, so its paths need the full prefix:
-```ts
-pages: { signIn: '/air/login' }
-redirectTo: '/air/dashboard'
-callbackUrl: '/air/dashboard'
-SessionProvider basePath="/air/api/auth"
-```
+### What you must prefix manually
+| Context | Why | Example |
+|---------|-----|---------|
+| `fetch()` in client components | Bypasses the Next.js router | `fetch('/air/api/stations')` |
+| Auth.js redirect paths | Auth.js has its own routing layer | `redirectTo: '/air/dashboard'` |
+| `SessionProvider basePath` | SessionProvider fetches auth endpoint directly | `basePath="/air/api/auth"` |
+| Static asset `src` via env var | Raw string, not a Next.js API | `` `${process.env.NEXT_PUBLIC_BASE_PATH}/logo.png` `` |
 
-**Client-side `fetch` also needs the full path** because `fetch` is not routed through Next.js:
-```ts
-fetch('/air/api/stations')
-fetch('/air/api/readings/sync', { method: 'POST' })
-```
-
-> **Why it matters:** Forgetting this causes silent 404s or redirect loops that are hard to trace. Treat `/air/` as a deployment-time concern (like a CDN prefix), not an app-level concern.
+> **Tip:** Expose `NEXT_PUBLIC_BASE_PATH=/air` in `.env` so client components can construct asset URLs without hardcoding the prefix.
 
 ---
 
-## 2. Next.js 15 — Dynamic Route Params Are Promises
+## 3. Next.js 15 — App Router Patterns
 
-`params` in Next.js 15 App Router is a `Promise`, not a plain object.
+### Dynamic route params are Promises
+Next.js 15 made `params` async. Destructuring directly causes a runtime error.
 
 ```tsx
-// WRONG (Next.js 13/14 style)
+// WRONG — Next.js 13/14 style, breaks in 15
 export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params; // TypeError at runtime
+  const { id } = params;
 }
 
-// CORRECT — use React.use() in client components
+// CORRECT — client component
+'use client';
 import { use } from 'react';
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
 }
 
-// CORRECT — await in server components
+// CORRECT — server component
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 }
 ```
 
-> **Why it matters:** The error is a cryptic type mismatch, not "params is a Promise". Always type it correctly from the start.
+### API Route options
+```ts
+// Opt out of caching for data that changes frequently
+export const dynamic = 'force-dynamic';
 
----
-
-## 3. Environment Variables — One File, Two Contexts
-
-**Pattern:** Single `.env` at the **project root** shared by all services. Never create `web/.env`.
-
-```
-# Local dev — DB on localhost
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/envi_db
-
-# Docker — hostname is the Compose service name
-DATABASE_URL=postgresql://postgres:postgres@db:5432/envi_db
+// Increase timeout for long-running external calls (Vercel/Edge limit)
+export const maxDuration = 30;
 ```
 
-The difference between local and Docker is only the **hostname** (`localhost` vs the Compose service name `db`). Keep one variable; switch by context.
-
-| Variable | Purpose |
-|----------|---------|
-| `DATABASE_URL` | Postgres — `localhost:5432` locally, `db:5432` in Docker |
-| `AUTH_SECRET` | Auth.js signing secret |
-| `AUTH_GOOGLE_CLIENT_ID` / `AUTH_GOOGLE_CLIENT_SECRET` | Google OAuth |
-| `NEXTAUTH_URL` / `AUTH_URL` | `http://localhost:3000/air/api/auth` |
-| `AUTH_TRUST_HOST` | `true` in Docker (set in `docker-compose.yml`, not `.env`) |
-| `APP_KEY` / `APP_SECRET` | IoT API credentials (SHA1 auth) |
-| `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API |
-| `NEXT_PUBLIC_BASE_PATH` | `/air` — exposed to browser for static asset paths |
-
-**`NEXT_PUBLIC_*` rule:** Only variables prefixed `NEXT_PUBLIC_` are available in the browser bundle. Use them for things like image base paths:
-```tsx
-<img src={`${process.env.NEXT_PUBLIC_BASE_PATH}/logo.png`} />
+### Map import — always dynamic (no SSR)
+```ts
+const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: false });
 ```
 
 ---
 
-## 4. Database — Prisma Without a Migrations Folder
+## 4. Environment Variables
 
-This project uses `db/init.sql` (raw SQL) as the schema source of truth for fresh installs, plus manual `ALTER TABLE` for live changes. There is no `prisma/migrations/` folder.
+### `.env` at project root — one file for everything
+```bash
+# ── Database ──────────────────────────────────────────────────────
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/envi_db"
+# In Docker, swap localhost → the Compose service name:
+# DATABASE_URL="postgresql://postgres:postgres@db:5432/envi_db"
 
-**Why:** Docker mounts `init.sql` on first run. Running `prisma migrate dev` requires a direct DB connection from the host machine, which is not available in this setup.
+# ── Next.js / Auth ────────────────────────────────────────────────
+AUTH_SECRET="your-secret-here"
+AUTH_GOOGLE_CLIENT_ID="..."
+AUTH_GOOGLE_CLIENT_SECRET="..."
+NEXTAUTH_URL="http://localhost:3000/air/api/auth"   # full URL including basePath
+AUTH_URL="http://localhost:3000/air/api/auth"
 
-**Workflow for adding a column:**
+# ── Public (browser-visible) ──────────────────────────────────────
+NEXT_PUBLIC_BASE_PATH="/air"
+
+# ── External APIs ─────────────────────────────────────────────────
+APP_KEY="..."
+APP_SECRET="..."
+LINE_CHANNEL_ACCESS_TOKEN="..."
+```
+
+### Rules
+| Rule | Reason |
+|------|--------|
+| `NEXT_PUBLIC_` prefix required for browser access | Server env vars are never sent to the client bundle |
+| Docker: use Compose service name as DB hostname | Containers resolve each other by service name, not `localhost` |
+| `AUTH_TRUST_HOST=true` in Docker (set in `docker-compose.yml`, not `.env`) | Only needed in containerised deployments |
+| Never commit `.env` | Add to `.gitignore`; provide `.env.example` instead |
+
+### Passing env to Docker Compose
+```yaml
+# docker-compose.yml
+services:
+  web:
+    env_file: .env              # loads all variables from root .env
+    environment:
+      - AUTH_TRUST_HOST=true    # runtime-only overrides go here, not in .env
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/envi_db
+```
+
+---
+
+## 5. PostgreSQL + Prisma
+
+### Prisma schema essentials
+```prisma
+// web/prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]  // native = local, linux-musl = Docker Alpine
+}
+```
+
+`binaryTargets` must include `linux-musl-openssl-3.0.x` when the Next.js Docker image is Alpine-based. Without it, Prisma Client won't work inside the container.
+
+### Singleton Prisma client (prevent connection pool exhaustion in dev)
+```ts
+// web/src/lib/prisma.ts
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+export default prisma;
+```
+
+### Schema change workflow (Docker, no host DB access)
+
+This project has no `prisma/migrations/` folder — Docker owns the DB. Workflow:
 
 ```bash
-# 1. Add the field to web/prisma/schema.prisma
-# 2. Add the column DDL to db/init.sql (for future fresh installs)
-# 3. Apply to the running container immediately:
-docker exec envi_db psql -U postgres -d envi_db \
-  -c 'ALTER TABLE "Reading" ADD COLUMN IF NOT EXISTS "col" DOUBLE PRECISION NOT NULL DEFAULT 0;'
-# 4. Regenerate the Prisma client:
+# 1. Edit web/prisma/schema.prisma  (add field)
+# 2. Edit db/init.sql               (add column DDL for fresh installs)
+# 3. Apply to live container:
+docker exec <db-container> psql -U postgres -d <dbname> \
+  -c 'ALTER TABLE "Table" ADD COLUMN IF NOT EXISTS "col" TYPE NOT NULL DEFAULT val;'
+# 4. Regenerate Prisma client (REQUIRED after every schema change):
 cd web && npx prisma generate
 ```
 
-> **Key constraint:** `prisma generate` must run after every schema change — otherwise TypeScript types won't include the new field.
+### Common Prisma queries
+```ts
+// Latest reading per station (1-to-many)
+prisma.station.findMany({
+  include: {
+    readings: { orderBy: { timestamp: 'desc' }, take: 1 },
+  },
+});
+
+// Hourly aggregates via raw SQL (Prisma doesn't do GROUP BY elegantly)
+prisma.$queryRaw<Row[]>`
+  SELECT date_trunc('hour', timestamp) AS hour, AVG(pm25) AS pm25
+  FROM "Reading"
+  WHERE "stationId" = ${id} AND timestamp >= ${since}
+  GROUP BY hour ORDER BY hour ASC
+`;
+```
 
 ---
 
-## 5. Docker Compose — Healthcheck-Based Startup Order
+## 6. Docker Compose — Best Practices
 
-**Problem:** A worker/cron container that calls a web API will fail if it starts before the web server is ready. `depends_on: service_started` (the default) only waits for the container process to exist, not for the app inside to respond.
-
-**Solution:** Add a `healthcheck` to the API service, then use `condition: service_healthy`:
+### Service startup order with healthcheck
+`depends_on: service_started` only waits for the container process, not the app. Use `service_healthy` for real readiness:
 
 ```yaml
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: envi_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # runs on first start only
+      - pgdata:/var/lib/postgresql/data
+
   web:
+    build: ./web
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/air/api/stations || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 30s   # give Next.js time to compile on first boot
 
   cron:
     depends_on:
       web:
-        condition: service_healthy   # waits until the app actually responds
+        condition: service_healthy   # won't start until web passes healthcheck
+
+volumes:
+  pgdata:
 ```
 
-> **Apply to any project** where a consumer service (cron, worker, migrator) depends on an HTTP API being live before it starts.
+### PostgreSQL healthcheck
+```yaml
+db:
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres"]
+    interval: 5s
+    timeout: 3s
+    retries: 5
+```
+
+### `init.sql` — runs only on first volume mount
+Docker runs `*.sql` files in `/docker-entrypoint-initdb.d/` only when the data volume is **empty**. To re-run it: `docker compose down -v` (destroys the volume).
 
 ---
 
-## 6. Auth.js v5 with Next.js `basePath`
+## 7. Auth.js v5 (next-auth@beta)
 
-Auth.js does **not** read `basePath` from `next.config.ts`. Next.js strips the prefix before Auth.js sees the request, so Auth.js always sees paths without `/air`.
-
+### Setup
 ```ts
-// auth.ts — do NOT set basePath here
-export const { handlers, auth } = NextAuth({
-  // basePath intentionally omitted — Next.js handles stripping it
-  pages: { signIn: '/air/login' },   // full path required here (bypasses router)
+// web/src/auth.ts
+import NextAuth from 'next-auth';
+import Google from 'next-auth/providers/google';
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [Google],
+  // Do NOT set basePath here — Next.js strips it before Auth.js sees the request
+  pages: { signIn: '/air/login' },   // full path (bypasses Next.js router)
+  callbacks: {
+    authorized({ auth }) { return !!auth?.user; },
+  },
 });
 
-// layout.tsx
-<SessionProvider basePath="/air/api/auth">  // full path required here
+// web/src/app/api/auth/[...nextauth]/route.ts
+export { GET, POST } from '@/auth';
+export const runtime = 'nodejs';
 ```
 
-**Middleware matcher** — write without the basePath (Next.js strips it before matching):
+### Middleware (protects all routes except public ones)
 ```ts
-matcher: ['/((?!_next/static|_next/image|favicon.ico|login|api/auth).*)']
+// web/src/middleware.ts
+import { auth } from '@/auth';
+export default auth((req) => {
+  if (!req.auth) return Response.redirect(new URL('/air/login', req.url));
+});
+
+export const config = {
+  // Paths WITHOUT basePath — Next.js strips it before matching
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|login|api/auth).*)'],
+};
+```
+
+### SessionProvider
+```tsx
+// Must include basePath so it knows where to fetch the session
+<SessionProvider basePath="/air/api/auth">
+  {children}
+</SessionProvider>
+```
+
+### Google OAuth Console
+Authorised redirect URI must include the full path with basePath:
+```
+http://localhost:3000/air/api/auth/callback/google
 ```
 
 ---
 
-## 7. IoT Sensor API — SHA1 Auth Pattern
+## 8. Tailwind CSS v4 — Theme & Dark Mode
 
-The HJ212-2017 API uses a time-based SHA1 signature. Regenerate headers on every request — signatures expire immediately.
+### CSS variables in `globals.css`
+```css
+:root {
+  --background: #f8f9fa;
+  --foreground: #202124;
+  --card: #ffffff;
+  --border: #e8eaed;
+}
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #202124;
+    --foreground: #e8eaed;
+    --card: #2d2e30;
+    --border: #3c4043;
+  }
+}
+```
+
+Use `bg-card`, `border-border`, `text-foreground` in components — never hardcode theme colors.
+
+### Hardcode semantic palette (not variables)
+For status colors that don't change with theme, use hex directly:
+```tsx
+// Good/Bad/Warning — always the same regardless of dark mode
+className="bg-[#e6f4ea] text-[#137333]"   // green
+className="bg-[#fef3c7] text-[#b45309]"   // yellow
+className="bg-[#fce8e6] text-[#c5221f]"   // red
+```
+
+---
+
+## 9. External API Integration Patterns
+
+### Time-based signature auth (SHA1)
+Regenerate on every request — never cache headers:
 ```ts
-function buildHeaders() {
+function buildHeaders(appKey: string, appSecret: string) {
   const timestamp = Date.now().toString();
   const rand = crypto.randomBytes(10).toString('hex').toUpperCase().slice(0, 10);
   const signature = crypto.createHash('sha1')
-    .update(`${timestamp}_${rand}_${APP_SECRET}`)
+    .update(`${timestamp}_${rand}_${appSecret}`)
     .digest('hex').toUpperCase();
-  return { appkey: APP_KEY, timestamp, rand, signature };
+  return { appkey: appKey, timestamp, rand, signature };
 }
-// Usage: POST /api/hj212/querystatus.do?sn=<serial>&tp=2011
 ```
 
-**Parameter code → DB field mapping** (`web/src/lib/enviApi.ts` `CODE_MAP`):
+### Single CODE_MAP pattern
+When an external API returns opaque codes, define one mapping object and derive everything from it:
+```ts
+// lib/apiMapping.ts — single source of truth
+export const CODE_MAP: Record<string, keyof DBModel> = {
+  a34004: 'pm25',
+  a34002: 'pm10',
+  a01001: 'temperature',
+};
 
-| Code | Parameter | Unit | DB field |
-|------|-----------|------|----------|
-| `a34004` | PM2.5 | µg/m³ | `pm25` |
-| `a34002` | PM10 | µg/m³ | `pm10` |
-| `a34001` | TSP | µg/m³ | `tsp` |
-| `a01007` | Wind Speed | km/h | `windSpeed` |
-| `a01008` | Wind Direction | ° | `windDirection` |
-| `a01001` | Temperature | °C | `temperature` |
-| `a01002` | Humidity | % | `humidity` |
-| `a01006` | Atm. Pressure | hPa | *(not mapped)* |
+// Parser — loops CODE_MAP, never hardcodes individual codes
+for (const item of body.Data) {
+  const field = CODE_MAP[item.Code?.toLowerCase()];
+  if (field) partial[field] = parseFloat(item.Rtd);
+}
+```
 
-> **Pattern:** Keep a single `CODE_MAP` as the source of truth. All parsing, debug pages, and sync routes derive from it — never hardcode codes elsewhere.
+Benefits: rename a code → change one line; debug page derives labels from same map; sync route derives DB fields from same map.
 
----
-
-## 8. Air Quality Thresholds — Single Source of Truth
-
-All threshold logic lives in `web/src/lib/airQuality.ts`. Never duplicate in components.
-
-| Pollutant | Good (green) | Moderate (yellow) | Unhealthy (red) |
-|-----------|-------------|-------------------|-----------------|
-| PM2.5 | ≤ 20 µg/m³ | ≤ 37.5 µg/m³ | > 37.5 µg/m³ |
-| PM10 | ≤ 50 µg/m³ | ≤ 100 µg/m³ | > 100 µg/m³ |
-| TSP | ≤ 100 µg/m³ | ≤ 200 µg/m³ | > 200 µg/m³ |
-
-**Pattern:** `getStatus(level)` returns `{ bgColor, textColor, label }` for inline dynamic coloring:
-```tsx
-const s = getStatus(pm25Level(r.pm25));
-<div style={{ background: s.bgColor, color: s.textColor }}>{r.pm25}</div>
+### Abort timeout for external calls
+```ts
+const res = await fetch(url, {
+  method: 'POST',
+  headers: buildHeaders(),
+  signal: AbortSignal.timeout(8000),   // don't hang forever
+});
 ```
 
 ---
 
-## 9. Route Map & Key Files
+## 10. LINE Messaging API
 
-| Browser URL | File |
-|-------------|------|
-| `/air/dashboard` | `src/app/dashboard/page.tsx` |
-| `/air/detail/[id]` | `src/app/detail/[id]/page.tsx` |
-| `/air/stations` | `src/app/stations/page.tsx` |
-| `/air/admin` | `src/app/admin/page.tsx` |
-| `/air/debug` | `src/app/debug/page.tsx` |
-| `/air/api/stations` | `src/app/api/stations/route.ts` |
-| `/air/api/readings` | `src/app/api/readings/route.ts` |
-| `/air/api/readings/sync` | `src/app/api/readings/sync/route.ts` |
-| `/air/api/alert` | `src/app/api/alert/route.ts` |
-| `/air/api/admin/config` | `src/app/api/admin/config/route.ts` |
-| `/air/api/debug` | `src/app/api/debug/route.ts` |
+### Multicast (send to multiple users)
+```ts
+await fetch('https://api.line.me/v2/bot/message/multicast', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
+  },
+  body: JSON.stringify({
+    to: ['Uxxxxx', 'Uyyyyy'],   // LINE user IDs
+    messages: [{ type: 'flex', altText: '...', contents: flexMessage }],
+  }),
+});
+```
+
+### Check quota before sending
+```ts
+const quota = await fetch('https://api.line.me/v2/bot/message/quota/consumption', {
+  headers: { Authorization: `Bearer ${token}` },
+}).then(r => r.json());
+// quota.totalUsage vs quota.value
+```
+
+### Cooldown pattern (prevent alert spam)
+```ts
+// lib/alertCooldown.ts
+let cooldownMs = 30 * 60 * 1000;
+const lastAlertTime = new Map<string, number>();
+
+export function setCooldown(minutes: number) { cooldownMs = minutes * 60 * 1000; }
+export function canAlert(key: string): boolean {
+  const last = lastAlertTime.get(key) ?? 0;
+  if (Date.now() - last < cooldownMs) return false;
+  lastAlertTime.set(key, Date.now());
+  return true;
+}
+```
 
 ---
 
-## 10. Common Commands
+## 11. Chart Timezone (Recharts)
+
+Always display timestamps in the local timezone using `toLocaleTimeString` with explicit `timeZone`:
+```ts
+const TZ = 'Asia/Bangkok';   // [this project] UTC+7
+
+function formatTick(ts: string): string {
+  return new Date(ts).toLocaleTimeString([], {
+    hour: '2-digit', minute: '2-digit',
+    timeZone: TZ,
+  });
+}
+```
+
+Never use `new Date().toLocaleTimeString()` without `timeZone` — the result depends on the server's system locale, which is UTC in Docker.
+
+---
+
+## 12. Configurable Rules via DB (Key-Value Config)
+
+Store tunable values in a `Config` table instead of hardcoding or using env vars:
+```prisma
+model Config {
+  key       String   @id @db.VarChar(64)
+  value     String
+  updatedAt DateTime @updatedAt
+}
+```
+
+```ts
+// Read at runtime (not at startup) so changes take effect without restart
+async function getConfig() {
+  const rows = await prisma.config.findMany();
+  const cfg = Object.fromEntries(rows.map(r => [r.key, r.value]));
+  return {
+    enabled:  cfg['alert.enabled']  !== 'false',
+    pm25:     parseFloat(cfg['alert.pm25']  ?? '37.5'),
+    pm10:     parseFloat(cfg['alert.pm10']  ?? '100'),
+    cooldown: parseInt(cfg['alert.cooldown'] ?? '30'),
+  };
+}
+```
+
+---
+
+## [This Project] Quick Reference
+
+**[this project]** basePath: `/air` · DB: `envi_db` · Containers: `envi_db`, `envi_web`, `envi_cron`
 
 ```bash
-# Start all services
-docker compose up -d
-
-# Rebuild web after code changes
-docker compose up -d --build web
-
-# View cron sync logs
-docker compose logs -f cron
-
-# Connect to DB
-docker exec -it envi_db psql -U postgres -d envi_db
-
-# Clear stale readings (e.g. after fixing parameter code mapping)
+docker compose up -d                        # start everything
+docker compose up -d --build web            # rebuild after code change
+docker compose logs -f cron                 # watch sync logs
+docker exec -it envi_db psql -U postgres -d envi_db   # DB shell
 docker exec envi_db psql -U postgres -d envi_db -c 'TRUNCATE TABLE "Reading";'
 ```
+
+IoT codes → DB fields: `a34004→pm25` · `a34002→pm10` · `a34001→tsp` · `a01007→windSpeed` · `a01008→windDirection` · `a01001→temperature` · `a01002→humidity`
+
+AQ thresholds: PM2.5 ≤20/≤37.5/>37.5 · PM10 ≤50/≤100/>100 · TSP ≤100/≤200/>200 µg/m³

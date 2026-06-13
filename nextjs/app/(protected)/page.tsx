@@ -5,7 +5,6 @@ import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
-import { LOGIN_PATH } from "@/lib/base-path";
 import EquipmentCard from "@/components/EquipmentCard";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
@@ -76,7 +75,7 @@ export default async function HomePage({
 }) {
   noStore();
   const [session, rawParams, jar] = await Promise.all([auth(), searchParams, cookies()]);
-  if (!session?.user?.id) redirect(LOGIN_PATH);
+  if (!session?.user?.id) redirect("/login");
 
   const lang = (jar.get("lang")?.value ?? "th") as Lang;
   const t = getT(lang);

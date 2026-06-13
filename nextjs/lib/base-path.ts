@@ -1,9 +1,12 @@
-// next.config.ts basePath:"/store" — Next.js adds /store automatically for:
+// basePath "/store" is added automatically by Next.js for:
 //   <Link href>, router.push, redirect() from next/navigation, signOut/signIn redirectTo
-// Use plain paths (no /store prefix) for those.
+//   → use plain paths like "/login", "/"
 //
-// Use full paths WITH /store for:
-//   NextResponse.redirect() in proxy.ts, Auth.js pages.signIn (direct HTTP redirects)
+// basePath is NOT added by:
+//   NextResponse.redirect() in proxy.ts, Auth.js pages.signIn
+//   → use full paths like "/store/login"
 export const BASE_PATH = "";
-export const LOGIN_PATH = "/store/login"; // for proxy.ts NextResponse.redirect + Auth.js pages.signIn
+// Only for proxy.ts (NextResponse.redirect) and auth.config.ts (pages.signIn).
+// Do NOT pass LOGIN_PATH to redirect() / signOut / signIn — those already add basePath.
+export const LOGIN_PATH = "/store/login";
 export const AUTH_BASE_PATH = "/api/auth";
