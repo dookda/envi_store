@@ -1,24 +1,27 @@
 "use server";
 
+import fs from "fs/promises";
+import path from "path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
-import { equipmentSchema, serviceRecordSchema } from "@/lib/validation/schemas";
+import { equipmentSchema } from "@/lib/validation/schemas";
+import { BASE_PATH, LOGIN_PATH } from "@/lib/base-path";
 
 async function getSession() {
     const session = await auth();
-
-    if (!session?.user?.id) {
-        redirect("/login");
-    }
-
+    if (!session?.user?.id) redirect(LOGIN_PATH);
     return session;
 }
 
-function normalizeNotes(value: string | undefined) {
-    return value?.trim() ? value.trim() : undefined;
+async function saveImage(file: File): Promise<string> {
+    const ext = path.extname(file.name).toLowerCase() || ".jpg";
+    const filename = `${crypto.randomUUID()}${ext}`;
+    const uploadsDir = path.join(process.cwd(), "public", "uploads");
+    await fs.mkdir(uploadsDir, { recursive: true });
+    await fs.writeFile(path.join(uploadsDir, filename), Buffer.from(await file.arrayBuffer()));
+    return `/uploads/${filename}`;
 }
 
 export async function createEquipment(formData: FormData) {
@@ -30,17 +33,16 @@ export async function createEquipment(formData: FormData) {
         location: formData.get("location"),
     };
     const result = equipmentSchema.safeParse(raw);
+    if (!result.success) return { error: result.error.flatten().fieldErrors };
 
-    if (!result.success) {
-        return { error: result.error.flatten().fieldErrors };
-    }
+    const imageFile = formData.get("image") as File | null;
+    const image = imageFile && imageFile.size > 0 ? await saveImage(imageFile) : undefined;
 
     await prisma.equipmentItem.create({
-        data: { ...result.data, userId: session.user.id },
+        data: { ...result.data, userId: session.user.id, ...(image ? { image } : {}) },
     });
 
-    revalidatePath("/");
-    revalidatePath("/services");
+    revalidatePath(BASE_PATH);
     return { success: true };
 }
 
@@ -53,27 +55,23 @@ export async function updateEquipment(id: string, formData: FormData) {
         location: formData.get("location"),
     };
     const result = equipmentSchema.safeParse(raw);
-
-    if (!result.success) {
-        return { error: result.error.flatten().fieldErrors };
-    }
+    if (!result.success) return { error: result.error.flatten().fieldErrors };
 
     const item = await prisma.equipmentItem.findFirst({
         where: { id, userId: session.user.id, isArchived: false },
     });
+    if (!item) return { error: { _form: ["Equipment not found"] } };
 
-    if (!item) {
-        return { error: { _form: ["Equipment not found"] } };
-    }
+    const imageFile = formData.get("image") as File | null;
+    const image = imageFile && imageFile.size > 0 ? await saveImage(imageFile) : undefined;
 
     await prisma.equipmentItem.update({
         where: { id },
-        data: result.data,
+        data: { ...result.data, ...(image ? { image } : {}) },
     });
 
-    revalidatePath("/");
-    revalidatePath(`/equipment/${id}`);
-    revalidatePath("/services");
+    revalidatePath(BASE_PATH);
+    revalidatePath(`${BASE_PATH}/equipment/${id}`);
     return { success: true };
 }
 
@@ -82,129 +80,20 @@ export async function archiveEquipment(id: string) {
     const item = await prisma.equipmentItem.findFirst({
         where: { id, userId: session.user.id, isArchived: false },
     });
-
-    if (!item) {
-        return { error: { _form: ["Equipment not found"] } };
-    }
+    if (!item) return { error: { _form: ["Equipment not found"] } };
 
     await prisma.equipmentItem.update({
         where: { id },
-        data: { isArchived: true, archivedAt: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())) },
-    });
-
-    revalidatePath("/");
-    revalidatePath("/services");
-    return { success: true };
-}
-
-export async function createServiceRecord(data: {
-    equipmentId: string;
-    serviceDate: string;
-    status?: "SCHEDULED" | "COMPLETED" | "CANCELLED";
-    notes?: string;
-}) {
-    const session = await getSession();
-    const result = serviceRecordSchema.safeParse({
-        ...data,
-        notes: normalizeNotes(data.notes),
-    });
-
-    if (!result.success) {
-        return { error: result.error.flatten().fieldErrors };
-    }
-
-    const item = await prisma.equipmentItem.findFirst({
-        where: { id: result.data.equipmentId, userId: session.user.id, isArchived: false },
-    });
-
-    if (!item) {
-        return { error: { _form: ["Equipment not found"] } };
-    }
-
-    const serviceDate = new Date(`${result.data.serviceDate}T00:00:00.000Z`);
-    const existingRecord = await prisma.serviceRecord.findFirst({
-        where: {
-            equipmentId: result.data.equipmentId,
-            userId: session.user.id,
-            serviceDate,
-        },
-    });
-
-    if (existingRecord) {
-        return { error: { _form: ["A service record already exists for this date"] } };
-    }
-
-    await prisma.serviceRecord.create({
         data: {
-            equipmentId: result.data.equipmentId,
-            userId: session.user.id,
-            serviceDate,
-            status: result.data.status,
-            notes: result.data.notes,
+            isArchived: true,
+            archivedAt: new Date(Date.UTC(
+                new Date().getUTCFullYear(),
+                new Date().getUTCMonth(),
+                new Date().getUTCDate(),
+            )),
         },
     });
 
-    revalidatePath("/");
-    revalidatePath("/services");
-    revalidatePath(`/equipment/${result.data.equipmentId}`);
-    return { success: true };
-}
-
-export async function deleteServiceRecord(id: string) {
-    const session = await getSession();
-    const record = await prisma.serviceRecord.findFirst({
-        where: { id, userId: session.user.id },
-    });
-
-    if (!record) {
-        return { error: { _form: ["Record not found"] } };
-    }
-
-    await prisma.serviceRecord.delete({ where: { id } });
-
-    revalidatePath("/");
-    revalidatePath("/services");
-    revalidatePath(`/equipment/${record.equipmentId}`);
-    return { success: true };
-}
-
-const updateServiceRecordSchema = z.object({
-    status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED"]).optional(),
-    notes: z.string().trim().max(1000).optional(),
-});
-
-export async function updateServiceRecord(
-    id: string,
-    data: {
-        status?: "SCHEDULED" | "COMPLETED" | "CANCELLED";
-        notes?: string;
-    },
-) {
-    const session = await getSession();
-    const result = updateServiceRecordSchema.safeParse({
-        ...data,
-        notes: normalizeNotes(data.notes),
-    });
-
-    if (!result.success) {
-        return { error: result.error.flatten().fieldErrors };
-    }
-
-    const record = await prisma.serviceRecord.findFirst({
-        where: { id, userId: session.user.id },
-    });
-
-    if (!record) {
-        return { error: { _form: ["Record not found"] } };
-    }
-
-    await prisma.serviceRecord.update({
-        where: { id },
-        data: result.data,
-    });
-
-    revalidatePath("/");
-    revalidatePath("/services");
-    revalidatePath(`/equipment/${record.equipmentId}`);
+    revalidatePath(BASE_PATH);
     return { success: true };
 }

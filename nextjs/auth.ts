@@ -2,36 +2,34 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "@/auth.config";
 import { prisma } from "@/lib/db/prisma";
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true,
+  basePath: "/subscribe/api/auth",
+  session: { strategy: "jwt" },
   ...authConfig,
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (
-        account?.provider === "line" &&
-        user.id &&
-        profile &&
-        typeof profile === "object" &&
-        "userId" in profile &&
-        typeof profile.userId === "string"
-      ) {
-        await prisma.user.update({
-          where: { id: user.id },
+      if (account?.provider === "line" && user.id && profile && "sub" in profile && profile.sub) {
+        // updateMany: silently skips if user doesn't exist or lineUserId already set
+        await prisma.user.updateMany({
+          where: { id: user.id, lineUserId: null },
           data: {
-            lineUserId: profile.userId,
-            name: user.name ?? undefined,
-            image: user.image ?? undefined,
+            lineUserId: String(profile.sub),
+            ...("name" in profile && profile.name ? { name: String(profile.name) } : {}),
+            ...("picture" in profile && profile.picture ? { image: String(profile.picture) } : {}),
           },
         });
       }
-
       return true;
     },
-    session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    async jwt({ token, user }) {
+      if (user?.id) token.id = user.id;
+      return token;
+    },
+    session({ session, token }) {
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
       }
       return session;
     },

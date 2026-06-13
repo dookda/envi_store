@@ -3,13 +3,28 @@
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/login/page": [
+    "/subscribe/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/css/app/subscribe/layout.css",
+      "static/chunks/app/subscribe/layout.js"
+    ],
+    "/subscribe/(protected)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/subscribe/(protected)/layout.js"
+    ],
+    "/subscribe/(protected)/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/subscribe/(protected)/page.js"
+    ],
+    "/subscribe/(protected)/equipment/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/subscribe/(protected)/equipment/[id]/page.js"
     ]
   }
 }

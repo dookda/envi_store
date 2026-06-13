@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import LineProvider from "next-auth/providers/line";
+import { LOGIN_PATH } from "@/lib/base-path";
 
 const authConfig = {
   providers: [
@@ -8,16 +9,16 @@ const authConfig = {
       clientSecret: process.env.LINE_CLIENT_SECRET!,
       profile(profile) {
         return {
-          lineUserId: profile.userId,
-          name: profile.displayName,
+          lineUserId: profile.sub ?? null,
+          name: profile.name ?? null,
           email: null,
-          image: profile.pictureUrl ?? null,
+          image: profile.picture ?? null,
         };
       },
     }),
   ],
   pages: {
-    signIn: "/login",
+    signIn: LOGIN_PATH,
   },
 } satisfies NextAuthConfig;
 

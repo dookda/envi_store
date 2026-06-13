@@ -1,6 +1,2 @@
-export {
-  equipmentSchema,
-  filterSchema,
-  serviceRecordSchema,
-} from "@/lib/validation/schemas";
-export type { EquipmentFormData, ServiceRecordFormData } from "@/lib/validation/schemas";
+export { equipmentSchema, filterSchema } from "@/lib/validation/schemas";
+export type { EquipmentFormData } from "@/lib/validation/schemas";

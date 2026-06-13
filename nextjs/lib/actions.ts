@@ -1,8 +1,1 @@
-export {
-  archiveEquipment,
-  createEquipment,
-  createServiceRecord,
-  deleteServiceRecord,
-  updateEquipment,
-  updateServiceRecord,
-} from "@/lib/db/actions";
+export { archiveEquipment, createEquipment, updateEquipment } from "@/lib/db/actions";

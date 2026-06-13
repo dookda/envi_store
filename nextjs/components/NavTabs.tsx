@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { BASE_PATH } from "@/lib/base-path";
 
 const tabs = [
-  { href: "/", label: "Equipment", match: (pathname: string) => pathname === "/" || pathname.startsWith("/equipment") },
-  { href: "/services", label: "Services", match: (pathname: string) => pathname.startsWith("/services") },
+  {
+    href: BASE_PATH,
+    label: "Equipment",
+    match: (pathname: string) => pathname === BASE_PATH || pathname.startsWith(`${BASE_PATH}/equipment`),
+  },
 ];
 
 export default function NavTabs() {
@@ -14,7 +18,7 @@ export default function NavTabs() {
 
   return (
     <nav className="border-b border-slate-100 bg-white">
-      <div className="mx-auto flex max-w-2xl gap-1 px-4">
+      <div className="mx-auto flex max-w-5xl gap-1 px-4">
         {tabs.map((tab) => {
           const active = tab.match(pathname);
 

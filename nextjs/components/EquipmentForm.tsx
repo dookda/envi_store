@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { EquipmentItem } from "@prisma/client";
 import { createEquipment, updateEquipment } from "@/lib/db/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BASE_PATH } from "@/lib/base-path";
 
 interface Props {
   equipment?: EquipmentItem;
@@ -25,6 +27,15 @@ export default function EquipmentForm({ equipment }: Props) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(equipment?.image ?? null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,7 +43,9 @@ export default function EquipmentForm({ equipment }: Props) {
     setErrors({});
 
     const formData = new FormData(event.currentTarget);
-    const result = equipment ? await updateEquipment(equipment.id, formData) : await createEquipment(formData);
+    const result = equipment
+      ? await updateEquipment(equipment.id, formData)
+      : await createEquipment(formData);
 
     setLoading(false);
 
@@ -41,7 +54,7 @@ export default function EquipmentForm({ equipment }: Props) {
       return;
     }
 
-    router.push(equipment ? `/equipment/${equipment.id}` : "/");
+    router.push(equipment ? `${BASE_PATH}/equipment/${equipment.id}` : BASE_PATH);
     router.refresh();
   };
 
@@ -62,6 +75,37 @@ export default function EquipmentForm({ equipment }: Props) {
           {errors[field.name] ? <p className="mt-1 text-xs text-red-500">{errors[field.name]?.[0]}</p> : null}
         </div>
       ))}
+
+      <div>
+        <Label htmlFor="image" className="mb-1.5 block text-sm text-slate-600">
+          Equipment Photo
+        </Label>
+        {preview ? (
+          <div className="mb-2 relative aspect-video w-full rounded-xl border border-slate-200 bg-slate-50">
+            <Image src={preview} alt="Equipment preview" fill className="object-contain" unoptimized />
+            <button
+              type="button"
+              onClick={() => {
+                setPreview(null);
+                if (fileRef.current) fileRef.current.value = "";
+              }}
+              className="absolute right-2 top-2 rounded-full bg-white/80 px-2 py-0.5 text-xs text-slate-500 shadow hover:bg-white"
+            >
+              Remove
+            </button>
+          </div>
+        ) : null}
+        <Input
+          ref={fileRef}
+          id="image"
+          name="image"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="rounded-xl border-slate-200 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:text-slate-600"
+        />
+      </div>
+
       {errors._form ? <p className="text-xs text-red-500">{errors._form[0]}</p> : null}
       <Button type="submit" className="h-12 w-full rounded-xl" disabled={loading}>
         {loading ? "Saving..." : equipment ? "Update Equipment" : "Add Equipment"}
