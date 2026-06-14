@@ -27,7 +27,7 @@ export const translations = {
     fieldInstalledAt: "วันที่ติดตั้ง",
     fieldExpiredAt: "วันหมดอายุ",
     fieldPhoto: "รูปอุปกรณ์",
-    registerEquipment: "ลงทะเบียนอุปกรณ์",
+    registerEquipment: "ลงทะเบียนเครื่องมือ",
     updateEquipment: "อัปเดตอุปกรณ์",
     saving: "กำลังบันทึก...",
     deleteEquipment: "ลบอุปกรณ์",
