@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import EquipmentCard, { type EquipmentCardItem } from "@/components/EquipmentCard";
+import StatsBar from "@/components/StatsBar";
 import { prisma } from "@/lib/db/prisma";
 import { filterSchema } from "@/lib/validation/schemas";
 import { getT, type Lang } from "@/lib/i18n";
@@ -98,6 +99,8 @@ export default async function HomePage({
 
   return (
     <div className="space-y-4">
+      <StatsBar t={t} />
+
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-text-primary">{t.equipment}</h1>
         <Link href="/equipment/new">
