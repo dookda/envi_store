@@ -6,7 +6,8 @@ import type { EquipmentItem } from "@prisma/client";
 import { createEquipment, updateEquipment } from "@/lib/db/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { FormField } from "@/components/ui/form-field";
 import LocationPicker from "@/components/LocationPicker";
 import { useLang } from "@/components/LangProvider";
 
@@ -16,21 +17,21 @@ interface Props {
 
 type FieldErrors = Record<string, string[] | undefined>;
 
+const TEXT_FIELDS = [
+  { name: "equipmentName", labelKey: "fieldBand",     placeholder: "Air quality monitor XR-200", required: true  },
+  { name: "model",         labelKey: "fieldModel",    placeholder: "XR-200",                    required: true  },
+  { name: "customerName",  labelKey: "fieldCustomer", placeholder: "Acme Corp",                 required: false },
+  { name: "location",      labelKey: "fieldLocation", placeholder: "Building A, Floor 3",       required: false },
+] as const;
+
 export default function EquipmentForm({ equipment }: Props) {
   const { t } = useLang();
   const router = useRouter();
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [errors, setErrors]   = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
-  const [inUse, setInUse] = useState(equipment?.inUse ?? false);
+  const [inUse, setInUse]     = useState(equipment?.inUse ?? false);
   const [preview, setPreview] = useState<string | null>(equipment?.image ?? null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const fields = [
-    { name: "equipmentName", label: t.fieldBand, placeholder: "Air quality monitor XR-200", required: true },
-    { name: "model", label: t.fieldModel, placeholder: "XR-200", required: true },
-    { name: "customerName", label: t.fieldCustomer, placeholder: "Acme Corp", required: false },
-    { name: "location", label: t.fieldLocation, placeholder: "Building A, Floor 3", required: false },
-  ] as const;
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,93 +61,72 @@ export default function EquipmentForm({ equipment }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* In Use switch */}
-      <div className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-600">
-        <Label htmlFor="inUseToggle" className="text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+      {/* In Use toggle */}
+      <div className="flex items-center justify-between rounded-input border border-border px-4 py-3">
+        <label htmlFor="inUseToggle" className="cursor-pointer select-none text-sm text-text-secondary">
           {t.inUse}
-        </Label>
-        <button
-          id="inUseToggle"
-          type="button"
-          role="switch"
-          aria-checked={inUse}
-          onClick={() => setInUse((v) => !v)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${inUse ? "bg-blue-500" : "bg-slate-200 dark:bg-slate-600"}`}
-        >
-          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${inUse ? "translate-x-6" : "translate-x-1"}`} />
-        </button>
+        </label>
+        <Switch id="inUseToggle" checked={inUse} onCheckedChange={setInUse} />
         <input type="hidden" name="inUse" value={inUse ? "on" : ""} />
       </div>
 
-      {fields.map((field) => (
-        <div key={field.name}>
-          <Label htmlFor={field.name} className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">
-            {field.label}{field.required ? <span className="ml-0.5 text-red-500">*</span> : null}
-          </Label>
+      {TEXT_FIELDS.map((field) => (
+        <FormField
+          key={field.name}
+          label={t[field.labelKey]}
+          name={field.name}
+          required={field.required}
+          error={errors[field.name]?.[0]}
+        >
           <Input
             id={field.name}
             name={field.name}
             placeholder={field.placeholder}
             defaultValue={(equipment?.[field.name] as string | undefined) ?? ""}
             required={field.required}
-            className="rounded-xl border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
-          {errors[field.name] ? <p className="mt-1 text-xs text-red-500">{errors[field.name]?.[0]}</p> : null}
-        </div>
+        </FormField>
       ))}
 
-      {/* Install / expire dates — required only when inUse */}
-      <div>
-        <Label htmlFor="installedAt" className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">
-          {t.fieldInstalledAt}{inUse ? <span className="ml-0.5 text-red-500">*</span> : null}
-        </Label>
+      <FormField label={t.fieldInstalledAt} name="installedAt" required={inUse} error={errors.installedAt?.[0]}>
         <Input
           id="installedAt"
           name="installedAt"
           type="date"
           required={inUse}
           defaultValue={equipment?.installedAt ? new Date(equipment.installedAt).toISOString().slice(0, 10) : ""}
-          className="rounded-xl border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
         />
-        {errors.installedAt ? <p className="mt-1 text-xs text-red-500">{errors.installedAt[0]}</p> : null}
-      </div>
+      </FormField>
 
-      <div>
-        <Label htmlFor="expiredAt" className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">
-          {t.fieldExpiredAt}{inUse ? <span className="ml-0.5 text-red-500">*</span> : null}
-        </Label>
+      <FormField label={t.fieldExpiredAt} name="expiredAt" required={inUse} error={errors.expiredAt?.[0]}>
         <Input
           id="expiredAt"
           name="expiredAt"
           type="date"
           required={inUse}
           defaultValue={equipment?.expiredAt ? new Date(equipment.expiredAt).toISOString().slice(0, 10) : ""}
-          className="rounded-xl border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
         />
-        {errors.expiredAt ? <p className="mt-1 text-xs text-red-500">{errors.expiredAt[0]}</p> : null}
-      </div>
+      </FormField>
 
-      <div>
-        <Label htmlFor="image" className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">
-          {t.fieldPhoto}
-        </Label>
-        {preview ? (
-          <div className="mb-2 relative aspect-video w-full rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-700">
+      {/* Image upload */}
+      <FormField label={t.fieldPhoto} name="image">
+        {preview && (
+          <div className="relative mb-2 aspect-video w-full overflow-hidden rounded-input border border-border bg-surface-sunken">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={preview.startsWith("blob:") ? preview : `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${preview}`}
               alt="Equipment preview"
-              className="absolute inset-0 h-full w-full object-contain"
+              className="h-full w-full object-contain"
             />
             <button
               type="button"
               onClick={() => { setPreview(null); if (fileRef.current) fileRef.current.value = ""; }}
-              className="absolute right-2 top-2 rounded-full bg-white/80 px-2 py-0.5 text-xs text-slate-500 shadow hover:bg-white dark:bg-slate-600/80 dark:text-slate-300 dark:hover:bg-slate-600"
+              className="absolute right-2 top-2 rounded-full bg-surface/80 px-2 py-0.5 text-xs text-text-secondary shadow hover:bg-surface"
             >
               Remove
             </button>
           </div>
-        ) : null}
+        )}
         <Input
           ref={fileRef}
           id="image"
@@ -154,14 +134,15 @@ export default function EquipmentForm({ equipment }: Props) {
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          className="rounded-xl border-slate-200 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:text-slate-600 dark:border-slate-600 dark:bg-slate-700 dark:file:bg-slate-600 dark:file:text-slate-300"
+          className="file:mr-3 file:rounded-lg file:border-0 file:bg-surface-sunken file:px-3 file:py-1 file:text-xs file:text-text-secondary"
         />
-      </div>
+      </FormField>
 
       <LocationPicker initialLat={equipment?.latitude} initialLng={equipment?.longitude} />
 
-      {errors._form ? <p className="text-xs text-red-500">{errors._form[0]}</p> : null}
-      <Button type="submit" className="h-12 w-full rounded-xl" disabled={loading}>
+      {errors._form && <p className="text-xs text-danger">{errors._form[0]}</p>}
+
+      <Button type="submit" className="h-12 w-full rounded-input" disabled={loading}>
         {loading ? t.saving : equipment ? t.updateEquipment : t.registerEquipment}
       </Button>
     </form>

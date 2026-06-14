@@ -45,3 +45,5 @@ next-env.d.ts
 /app/generated/prisma
 nextjs/public/uploads/*
 !nextjs/public/uploads/.gitkeep
+
+.next

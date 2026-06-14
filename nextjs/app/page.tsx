@@ -1,16 +1,28 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
-import { Prisma } from "@prisma/client";
-import EquipmentCard from "@/components/EquipmentCard";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import EquipmentCard, { type EquipmentCardItem } from "@/components/EquipmentCard";
 import { prisma } from "@/lib/db/prisma";
 import { filterSchema } from "@/lib/validation/schemas";
 import { getT, type Lang } from "@/lib/i18n";
 import SearchInput from "@/components/SearchInput";
 
 export const dynamic = "force-dynamic";
+
+const CARD_SELECT = {
+  id:            true,
+  equipmentName: true,
+  model:         true,
+  customerName:  true,
+  location:      true,
+  latitude:      true,
+  longitude:     true,
+  image:         true,
+  inUse:         true,
+  expiredAt:     true,
+} as const;
 
 function getString(value: string | string[] | undefined) {
   return typeof value === "string" ? value : undefined;
@@ -27,27 +39,33 @@ async function EquipmentList({
   sortDir: "asc" | "desc";
   t: ReturnType<typeof getT>;
 }) {
-  const where: Prisma.EquipmentItemWhereInput = { isArchived: false };
+  const where = {
+    isArchived: false,
+    ...(search ? {
+      OR: [
+        { equipmentName: { contains: search, mode: "insensitive" as const } },
+        { model:         { contains: search, mode: "insensitive" as const } },
+        { customerName:  { contains: search, mode: "insensitive" as const } },
+      ],
+    } : {}),
+  };
 
-  if (search) {
-    where.OR = [
-      { equipmentName: { contains: search, mode: "insensitive" } },
-      { model: { contains: search, mode: "insensitive" } },
-      { customerName: { contains: search, mode: "insensitive" } },
-    ];
-  }
+  const orderBy = sortBy === "equipmentName"
+    ? { equipmentName: sortDir }
+    : { createdAt:     sortDir };
 
-  const orderBy: Prisma.EquipmentItemOrderByWithRelationInput =
-    sortBy === "equipmentName" ? { equipmentName: sortDir } : { createdAt: sortDir };
-
-  const items = await prisma.equipmentItem.findMany({ where, orderBy });
+  const items = await prisma.equipmentItem.findMany({
+    where,
+    orderBy,
+    select: CARD_SELECT,
+  }) satisfies EquipmentCardItem[];
 
   if (items.length === 0) {
     return (
       <div className="py-12 text-center">
-        <p className="text-sm text-slate-400">{t.noEquipment}</p>
+        <p className="text-sm text-text-muted">{t.noEquipment}</p>
         <Link href="/equipment/new">
-          <Button className="mt-4 rounded-xl" size="sm">{t.addFirst}</Button>
+          <Button className="mt-4" size="sm">{t.addFirst}</Button>
         </Link>
       </div>
     );
@@ -67,14 +85,13 @@ export default async function HomePage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  noStore();
   const [rawParams, jar] = await Promise.all([searchParams, cookies()]);
   const lang = (jar.get("lang")?.value ?? "th") as Lang;
   const t = getT(lang);
 
   const parsed = filterSchema.safeParse({
-    search: getString(rawParams.search),
-    sortBy: getString(rawParams.sortBy),
+    search:  getString(rawParams.search),
+    sortBy:  getString(rawParams.sortBy),
     sortDir: getString(rawParams.sortDir),
   });
   const filters = parsed.success ? parsed.data : filterSchema.parse({});
@@ -82,10 +99,10 @@ export default async function HomePage({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{t.equipment}</h1>
+        <h1 className="text-xl font-bold text-text-primary">{t.equipment}</h1>
         <Link href="/equipment/new">
-          <Button className="flex items-center gap-1 rounded-xl text-sm" size="sm">
-            <span className="material-icons select-none text-[16px] leading-none">add</span>
+          <Button className="flex items-center gap-1 text-sm" size="sm">
+            <Icon name="add" size={16} />
             {t.register}
           </Button>
         </Link>
@@ -96,11 +113,11 @@ export default async function HomePage({
           <SearchInput defaultValue={filters.search} />
         </Suspense>
         <Link href="/">
-          <Button variant="ghost" className="rounded-xl text-slate-400" size="sm">{t.clear}</Button>
+          <Button variant="ghost" className="text-text-muted" size="sm">{t.clear}</Button>
         </Link>
       </div>
 
-      <Suspense fallback={<div className="py-8 text-center text-sm text-slate-400">{t.loading}</div>}>
+      <Suspense fallback={<div className="py-8 text-center text-sm text-text-muted">{t.loading}</div>}>
         <EquipmentList search={filters.search} sortBy={filters.sortBy} sortDir={filters.sortDir} t={t} />
       </Suspense>
     </div>

@@ -5,43 +5,30 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
-  // Main user (looked up by LINE user ID so the seed is idempotent across DB resets)
-  const user = await prisma.user.upsert({
-    where: { lineUserId: "Ufd66dd59708cfa4fafd767a8495cb5fb" },
-    update: {},
-    create: {
-      lineUserId: "Ufd66dd59708cfa4fafd767a8495cb5fb",
-      name: "sakda.homhuan",
-      image: "https://profile.line-scdn.net/0hjiX1GEA_NUZlSBrAnfNKEVkNOysSZjMOHS17dUFNa3RBfXNHDXkvKEgaa3IYK3MTDCgtKEZKaCJN",
-    },
-  });
-
-  // Equipment items
   await prisma.equipmentItem.upsert({
-    where: { id: "cmqbw8isf0004o65b4emr5q9t" },
+    where:  { id: "sample001" },
     update: {},
     create: {
-      id: "cmqbw8isf0004o65b4emr5q9t",
-      userId: user.id,
-      equipmentName: "test",
-      model: "test",
-      customerName: "test",
-      location: "test",
-      image: "/uploads/67190217-1fd7-4232-b33d-7ef4101481ca.webp",
+      id:            "sample001",
+      equipmentName: "Air Quality Monitor",
+      model:         "AQM-100",
+      customerName:  "Acme Corp",
+      location:      "Building A, Floor 3",
     },
   });
 
   await prisma.equipmentItem.upsert({
-    where: { id: "cmqbwtkgd0001o65b4nnys569" },
+    where:  { id: "sample002" },
     update: {},
     create: {
-      id: "cmqbwtkgd0001o65b4nnys569",
-      userId: user.id,
+      id:            "sample002",
       equipmentName: "XR-200",
-      model: "XR-200",
-      customerName: "Acme crop",
-      location: "Floo3",
-      image: "/uploads/08f9e00c-91ba-4f64-969d-dc8b246ae368.webp",
+      model:         "XR-200",
+      customerName:  "Acme Corp",
+      location:      "Floor 3",
+      inUse:         true,
+      installedAt:   new Date("2026-06-01"),
+      expiredAt:     new Date("2026-12-31"),
     },
   });
 
