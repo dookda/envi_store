@@ -2,7 +2,6 @@ import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { auth } from "@/auth";
 import EquipmentForm from "@/components/EquipmentForm";
 import CardDeleteButton from "@/components/CardDeleteButton";
 import { Button } from "@/components/ui/button";
@@ -11,16 +10,11 @@ import { getT, type Lang } from "@/lib/i18n";
 
 export default async function EquipmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   noStore();
-  const [{ id }, session, jar] = await Promise.all([params, auth(), cookies()]);
-  const userId = session!.user.id;
-
+  const [{ id }, jar] = await Promise.all([params, cookies()]);
   const lang = (jar.get("lang")?.value ?? "th") as Lang;
   const t = getT(lang);
 
-  const equipment = await prisma.equipmentItem.findFirst({
-    where: { id, userId, isArchived: false },
-  });
-
+  const equipment = await prisma.equipmentItem.findFirst({ where: { id, isArchived: false } });
   if (!equipment) notFound();
 
   return (
